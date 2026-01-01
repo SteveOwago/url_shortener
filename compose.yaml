@@ -1,0 +1,20 @@
+services:
+  db:
+    container_name: postgres-db-url-qr-shortener
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres-root
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: springbootdb
+    ports:
+      - "5232:5432"
+    volumes:
+      - db:/data/postgres
+    networks:
+      - db
+    restart: unless-stopped
+networks:
+  db:
+    driver: bridge
+volumes:
+  db:
