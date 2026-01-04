@@ -25,10 +25,10 @@ public class UrlService {
     }
 
     public Url createUrl(@Valid Url url) {
-    if (urlRepository.existsByOriginalUrl(url.getOriginalUrl())) {
-        throw new DuplicateKeyException("Url already exists");
-    }
-        url.setShortUrl(this.generateShortUrl());
+        if (urlRepository.existsByOriginalUrl(url.getOriginalUrl())) {
+            throw new DuplicateKeyException("Url already exists");
+        }
+        url.setShortCode(this.generateShortCode());
         return urlRepository.save(url);
     }
 
@@ -62,26 +62,39 @@ public class UrlService {
         return null;
     }
 
-    public String generateShortUrl() {
-        // Implement a method to generate a unique short URL
+    // Method to generate a unique short URL
+    public String generateShortCode() {
         String characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        StringBuilder shortUrl = new StringBuilder();
-        String protocol = "https://mrsX";
+        StringBuilder shortCode = new StringBuilder();
+
         // Generate a 6-character random string
         for (int i = 0; i < 6; i++) {
             int index = (int) (Math.random() * characters.length());
-            shortUrl.append(characters.charAt(index));
+            shortCode.append(characters.charAt(index));
         }
-        String finalShortUrl = protocol + shortUrl.toString();
-        if (this.IsShortUrlAvailable(finalShortUrl)) {
-            return generateShortUrl();
+
+        String code = shortCode.toString();
+
+        // Check if code already exists, regenerate if it does
+        if (urlRepository.existsByShortCode(code)) {
+            return generateShortCode();
         }
-        return finalShortUrl;
+
+        return code;
+    }
+
+    // New method to get URL by short code and increment hit count
+    public Url getAndIncrementByShortCode(String shortCode) {
+        Url url = urlRepository.findByShortCode(shortCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Short code " + shortCode + " not found"));
+
+        url.setHitCount(url.getHitCount() + 1);
+        return urlRepository.save(url);
     }
 
     @ReadOnlyProperty
-    public Boolean IsShortUrlAvailable(String shortUrl) {
-        return (Boolean) urlRepository.existsByShortUrl(shortUrl);
+    public Boolean IsShortUrlAvailable(String shortCode) {
+        return (Boolean) urlRepository.existsByShortCode(shortCode);
     }
 
 }

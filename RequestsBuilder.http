@@ -6,8 +6,7 @@ POST http://localhost:8080/api/v1/urls
 Content-Type: application/json
 
 {
-  "originalUrl": "https://www.exampldde.com",
-  "hitCount": 0
+  "originalUrl": "https://www.exampldde.com"
 }
 
 ### PATCH request to update an existing URL entry
@@ -15,9 +14,7 @@ PATCH http://localhost:8080/api/v1/urls/1
 Content-Type: application/json
 
 {
-  "originalUrl": "https://www.example.com/updated",
-  "shortUrl": "exmpl-upd",
-  "hitCount": 10
+  "originalUrl": "https://msio.moringaschool.com/payment"
 }
 
 
@@ -27,6 +24,5 @@ GET http://localhost:8080/api/v1/urls/1549
 ### DELETE request to remove a URL entry
 DELETE http://localhost:8080/api/v1/urls/103
 
-### PATCH request to partially update a URL entry
-PATCH http://localhost:8080/api/v1/urls/1
-Content-Type: application/json
+### Shortened URL redirection request
+GET http://localhost:8080/okZQz2

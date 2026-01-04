@@ -1,50 +1,46 @@
 package com.moringaschool.url_qr_shortener.url_management;
 
-
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.URL;
-import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.data.annotation.ReadOnlyProperty;
 
 import java.util.Objects;
 
 @Entity
 @Table(name = "url", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"originalUrl"}),
-        @UniqueConstraint(columnNames = {"shortUrl"})
+        @UniqueConstraint(columnNames = {"originalUrl", "shortCode"})
 })
-
 public class Url {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-     private Integer id;
+    private Integer id;
+
     @URL(message = "Please provide a valid URL")
     @NotBlank(message = "Website URL is required")
-    @Size(min = 3, max = 100, message = "Name must be between 3 and 100 characters")
+    @Size(min = 3, max = 500, message = "URL must be between 3 and 500 characters")
     @Column(nullable = false, unique = true, length = 500)
     private String originalUrl;
 
-    @URL(message = "Please provide a valid URL")
     @ReadOnlyProperty
-    @Column(nullable = false, unique = true, length = 500)
-     private String shortUrl;
-     public Integer hitCount;
+    @Column(nullable = false, unique = true, length = 20)
+    private String shortCode;  // Just "AbCd12"
 
-    public Url(Integer id, String originalUrl, String shortUrl, Integer hitCount) {
+    @Column(nullable = false)
+    private Integer hitCount = 0;  // Initialize to 0
+
+    // Constructors
+    public Url() {}
+
+    public Url(Integer id, String originalUrl, String shortCode, Integer hitCount) {
         this.id = id;
         this.originalUrl = originalUrl;
-        this.shortUrl = shortUrl;
+        this.shortCode = shortCode;
         this.hitCount = hitCount;
     }
 
-    public Url() {
-
-    }
-
+    // Getters and Setters
     public Integer getId() {
         return id;
     }
@@ -61,12 +57,12 @@ public class Url {
         this.originalUrl = originalUrl;
     }
 
-    public String getShortUrl() {
-        return shortUrl;
+    public String getShortCode() {
+        return shortCode;
     }
 
-    public void setShortUrl(String shortUrl) {
-        this.shortUrl = shortUrl;
+    public void setShortCode(String shortCode) {
+        this.shortCode = shortCode;
     }
 
     public Integer getHitCount() {
@@ -77,15 +73,23 @@ public class Url {
         this.hitCount = hitCount;
     }
 
+    // Helper method to get full short URL
+    @Transient
+    public String getFullShortUrl(String baseUrl) {
+        return baseUrl + "/" + shortCode;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Url that = (Url) o;
-        return Objects.equals(id, that.id) && Objects.equals(originalUrl, that.originalUrl) && Objects.equals(shortUrl, that.shortUrl) && Objects.equals(hitCount, that.hitCount);
+        return Objects.equals(id, that.id) &&
+                Objects.equals(originalUrl, that.originalUrl) &&
+                Objects.equals(shortCode, that.shortCode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, originalUrl, shortUrl, hitCount);
+        return Objects.hash(id, originalUrl, shortCode);
     }
 }
